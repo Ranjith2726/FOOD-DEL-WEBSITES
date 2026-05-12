@@ -1,6 +1,8 @@
 import express from "express"
 import cors from "cors"
 import dotenv from "dotenv"
+import path from "path"
+import { fileURLToPath } from "url"
 
 dotenv.config()
 
@@ -14,7 +16,6 @@ const app = express()
 // MIDDLEWARE
 
 app.use(express.json())
-
 app.use(cors())
 
 // DATABASE CONNECTION
@@ -24,15 +25,17 @@ connectDB()
 // API ROUTES
 
 app.use("/api/order", orderRouter)
-
 app.use("/api/user", userRouter)
 
-// TEST API
+// FRONTEND MOUNT
 
-app.get("/", (req, res) => {
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 
-    res.send("API Working")
+app.use(express.static(path.join(__dirname, "public")))
 
+app.get("*", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "index.html"))
 })
 
 // SERVER
@@ -40,14 +43,5 @@ app.get("/", (req, res) => {
 const PORT = process.env.PORT || 4000
 
 app.listen(PORT, () => {
-
-    console.log(
-        `Server Started on PORT ${PORT}`
-    )
-
-    console.log(
-        "Razorpay Key:",
-        process.env.RAZORPAY_KEY_ID
-    )
-
+    console.log(`Server Started on PORT ${PORT}`)
 })
