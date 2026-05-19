@@ -1,10 +1,11 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Route, Routes } from 'react-router-dom'
 import { motion } from 'framer-motion'
 
 import Home from './pages/Home/Home'
 import Cart from './pages/cart/Cart'
 import PlaceOrder from './pages/PlaceOrder/PlaceOrder'
+import MyOrders from './pages/MyOrders/MyOrders'
 
 import Footer from './components/Footer/Footer'
 import LoginPopup from './components/LoginPopup/LoginPopup'
@@ -14,25 +15,39 @@ const App = () => {
 
   const [showLogin, setShowLogin] = useState(false)
 
+  useEffect(() => {
+
+    const openLogin = () => {
+      setShowLogin(true)
+    }
+
+    window.addEventListener('openLoginPopup', openLogin)
+
+    return () => {
+      window.removeEventListener('openLoginPopup', openLogin)
+    }
+
+  }, [])
+
   return (
 
     <div className='bg-[#f8f8f8] dark:bg-slate-900 min-h-screen transition-all duration-500'>
 
-      {/* Login Popup */}
+      {/* LOGIN POPUP */}
 
       {showLogin && (
-        <LoginPopup setShowLogin={setShowLogin}/>
+        <LoginPopup setShowLogin={setShowLogin} />
       )}
 
-      {/* Main App Container */}
+      {/* MAIN APP */}
 
       <div className='app'>
 
-        {/* Navbar */}
+        {/* NAVBAR */}
 
-        <Navbar setShowLogin={setShowLogin}/>
+        <Navbar setShowLogin={setShowLogin} />
 
-        {/* Animated Routes */}
+        {/* ROUTES */}
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -58,19 +73,25 @@ const App = () => {
               element={<PlaceOrder />}
             />
 
+            <Route
+              path='/myorders'
+              element={<MyOrders />}
+            />
+
           </Routes>
 
         </motion.div>
 
       </div>
 
-      {/* Footer */}
+      {/* FOOTER */}
 
       <Footer />
 
     </div>
 
   )
+
 }
 
 export default App

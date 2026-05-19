@@ -1,233 +1,146 @@
-import React, { useState } from 'react'
-import './LoginPopup.css'
-import { assets } from '../../assets/assets'
-import axios from 'axios'
-import { url } from '../../config'
+import React, { useContext, useState } from "react";
+import "./LoginPopup.css";
+import { StoreContext } from "../../context/StoreContext";
+import axios from "axios";
 
 const LoginPopup = ({ setShowLogin }) => {
+  const { setToken } = useContext(StoreContext);
 
-  const [currState, setCurrState] = useState("Login")
+  const [currState, setCurrState] = useState("Login");
+  const [error, setError] = useState("");
 
   const [data, setData] = useState({
     name: "",
     email: "",
-    password: ""
-  })
+    password: "",
+  });
 
-  // INPUT CHANGE HANDLER
+  const url = "http://localhost:4000";
 
   const onChangeHandler = (event) => {
+    const name = event.target.name;
+    const value = event.target.value;
 
-    const name = event.target.name
-    const value = event.target.value
+    setData((data) => ({
+      ...data,
+      [name]: value,
+    }));
 
-    setData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }))
-
-  }
-
-  // LOGIN / REGISTER FUNCTION
+    setError("");
+  };
 
   const onLogin = async (event) => {
+    event.preventDefault();
 
-    event.preventDefault()
+    let newUrl = url;
+
+    if (currState === "Login") {
+      newUrl += "/api/user/login";
+    } else {
+      newUrl += "/api/user/register";
+    }
 
     try {
-
-      let newUrl = url
-
-      if (currState === "Login") {
-
-        newUrl += "/api/user/login"
-
-      } else {
-
-        newUrl += "/api/user/register"
-
-      }
-
-      const response = await axios.post(newUrl, data)
-
-      console.log("API RESPONSE:", response.data)
+      const response = await axios.post(newUrl, data);
 
       if (response.data.success) {
-
-        // SAVE TOKEN
-
-        localStorage.setItem(
-          "token",
-          response.data.token
-        )
-
-        alert(
-          currState === "Login"
-            ? "Login Successful ✅"
-            : "Account Created Successfully ✅"
-        )
-
-        // CLOSE POPUP
-
-        setShowLogin(false)
-
-        // CLEAR INPUTS
-
-        setData({
-          name: "",
-          email: "",
-          password: ""
-        })
-
+        setToken(response.data.token);
+        localStorage.setItem("token", response.data.token);
+        setShowLogin(false);
+      } else {
+        setError(response.data.message || "Something went wrong");
       }
-      else {
-
-        alert(response.data.message)
-
-      }
-
+    } catch (error) {
+      setError("Server error. Please try again.");
     }
-    catch (error) {
-
-      console.log(error)
-
-      alert("Server Error ❌")
-
-    }
-
-  }
+  };
 
   return (
-
-    <div className='login-popup'>
-
-      <form
-        onSubmit={onLogin}
-        className="login-popup-container"
-      >
-
-        {/* TITLE */}
-
+    <div className="login-popup">
+      <form onSubmit={onLogin} className="login-popup-container">
         <div className="login-popup-title">
-
           <h2>{currState}</h2>
-
-          <img
+          <button
+            type="button"
             onClick={() => setShowLogin(false)}
-            src={assets.cross_icon}
-            alt=""
-          />
-
+            className="login-popup-close"
+          >
+            ×
+          </button>
         </div>
 
-        {/* INPUTS */}
-
         <div className="login-popup-inputs">
-
-          {
-            currState === "Sign Up" &&
-
+          {currState === "Sign Up" && (
             <input
-              name='name'
+              name="name"
               onChange={onChangeHandler}
               value={data.name}
               type="text"
-              placeholder='Your Name'
+              placeholder="Your name"
               required
             />
-          }
+          )}
 
           <input
-            name='email'
+            name="email"
             onChange={onChangeHandler}
             value={data.email}
             type="email"
-            placeholder='Your Email'
+            placeholder="Your email"
             required
           />
 
           <input
-            name='password'
+            name="password"
             onChange={onChangeHandler}
             value={data.password}
             type="password"
-            placeholder='Password'
+            placeholder="Password"
             required
           />
-
         </div>
 
-        {/* BUTTON */}
+        {error && <p className="login-error">{error}</p>}
 
-        <button type='submit'>
-
-          {
-            currState === "Sign Up"
-              ? "Create Account"
-              : "Login"
-          }
-
+        <button type="submit">
+          {currState === "Sign Up" ? "Create account" : "Login"}
         </button>
 
-        {/* TERMS */}
-
         <div className="login-popup-condition">
-
           <input type="checkbox" required />
-
           <p>
-            By continuing, I agree to the
-            terms of use & privacy policy.
+            By continuing, I agree to the terms of use & privacy policy.
           </p>
-
         </div>
 
-        {/* TOGGLE LOGIN/SIGNUP */}
-
-        {
-
-          currState === "Login"
-
-            ? (
-
-              <p>
-
-                Create a new account?
-
-                <span
-                  onClick={() => setCurrState("Sign Up")}
-                >
-                  {" "}Click Here
-                </span>
-
-              </p>
-
-            )
-
-            : (
-
-              <p>
-
-                Already have an account?
-
-                <span
-                  onClick={() => setCurrState("Login")}
-                >
-                  {" "}Login Here
-                </span>
-
-              </p>
-
-            )
-
-        }
-
+        {currState === "Login" ? (
+          <p>
+            Create a new account?{" "}
+            <span
+              onClick={() => {
+                setCurrState("Sign Up");
+                setError("");
+              }}
+            >
+              Click Here
+            </span>
+          </p>
+        ) : (
+          <p>
+            Already have an account?{" "}
+            <span
+              onClick={() => {
+                setCurrState("Login");
+                setError("");
+              }}
+            >
+              Login Here
+            </span>
+          </p>
+        )}
       </form>
-
     </div>
+  );
+};
 
-  )
-
-}
-
-export default LoginPopup
+export default LoginPopup;

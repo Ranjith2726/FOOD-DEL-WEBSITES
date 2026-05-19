@@ -1,231 +1,108 @@
-import React, { useState, useContext } from 'react'
-import './Navbar.css'
-import { assets, food_list } from '../../assets/assets'
-import { Link } from 'react-router-dom'
-import { StoreContext } from '../../context/StoreContext'
+import React, { useContext, useState } from "react";
+import "./Navbar.css";
+import { assets } from "../../assets/assets";
+import { Link, useNavigate } from "react-router-dom";
+import { StoreContext } from "../../context/StoreContext";
 
 const Navbar = ({ setShowLogin }) => {
+  const [menu, setMenu] = useState("home");
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
-  const [menu, setMenu] = useState("menu")
-  const [showSearch, setShowSearch] = useState(false)
-  const [filteredFoods, setFilteredFoods] = useState([])
+  const { token, setToken } = useContext(StoreContext);
+  const navigate = useNavigate();
 
-  const {
-    getTotalCartAmount,
-    search,
-    setSearch
-  } = useContext(StoreContext)
-
-  // SEARCH FUNCTION
-
-  const handleSearch = (e) => {
-
-    const value = e.target.value
-
-    setSearch(value)
-
-    if (value.trim() === "") {
-
-      setFilteredFoods([])
-
-      return
-
-    }
-
-    const filtered = food_list.filter((item) =>
-      item.name.toLowerCase().includes(value.toLowerCase())
-    )
-
-    setFilteredFoods(filtered)
-
-  }
-
-  // CLICK SEARCH ITEM
-
-  const handleFoodClick = (id) => {
-
-    const foodElement = document.getElementById(id)
-
-    if (foodElement) {
-
-      foodElement.scrollIntoView({
-        behavior: "smooth",
-        block: "center"
-      })
-
-    }
-
-    setShowSearch(false)
-
-    setSearch("")
-
-  }
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken("");
+    setShowProfileMenu(false);
+    navigate("/");
+  };
 
   return (
-
-    <div className='navbar'>
-
-      <Link to='/'>
-        <img
-          src={assets.logo}
-          alt="logo"
-          className="logo"
-        />
+    <div className="navbar">
+      <Link to="/">
+        <h1 className="logo-text">Tomato.</h1>
       </Link>
 
       <ul className="navbar-menu">
+        <Link
+          to="/"
+          onClick={() => setMenu("home")}
+          className={menu === "home" ? "active" : ""}
+        >
+          home
+        </Link>
 
-        <li>
-          <Link
-            to="/"
-            onClick={() => setMenu("home")}
-            className={menu === "home" ? "active" : ""}
-          >
-            home
-          </Link>
-        </li>
+        <a
+          href="#explore-menu"
+          onClick={() => setMenu("menu")}
+          className={menu === "menu" ? "active" : ""}
+        >
+          menu
+        </a>
 
-        <li>
-          <a
-            href="#explore-menu"
-            onClick={() => setMenu("menu")}
-            className={menu === "menu" ? "active" : ""}
-          >
-            menu
-          </a>
-        </li>
+        <a
+          href="#app-download"
+          onClick={() => setMenu("mobile-app")}
+          className={menu === "mobile-app" ? "active" : ""}
+        >
+          mobile-app
+        </a>
 
-        <li>
-          <a
-            href="#app-download"
-            onClick={() => setMenu("mobile-app")}
-            className={menu === "mobile-app" ? "active" : ""}
-          >
-            mobile-app
-          </a>
-        </li>
-
-        <li>
-          <a
-            href="#footer"
-            onClick={() => setMenu("contact")}
-            className={menu === "contact" ? "active" : ""}
-          >
-            contact us
-          </a>
-        </li>
-
+        <a
+          href="#footer"
+          onClick={() => setMenu("contact-us")}
+          className={menu === "contact-us" ? "active" : ""}
+        >
+          contact us
+        </a>
       </ul>
 
       <div className="navbar-right">
+        <img src={assets.search_icon} alt="search" />
 
-        <img
-          src={assets.search_icon}
-          alt="search"
-          onClick={() => setShowSearch(!showSearch)}
-          style={{ cursor: "pointer" }}
-        />
-
-        <div className="navbar-searchicon">
-
-          <Link to='/cart'>
-
-            <img
-              src={assets.basket_icon}
-              alt="basket"
-            />
-
+        <div className="navbar-search-icon">
+          <Link to="/cart">
+            <img src={assets.basket_icon} alt="basket" />
           </Link>
-
-          <div
-            className={
-              getTotalCartAmount() === 0
-                ? ""
-                : "dot"
-            }
-          ></div>
-
+          <div className="dot"></div>
         </div>
 
-        <button onClick={() => setShowLogin(true)}>
-          sign in
-        </button>
+        {!token ? (
+          <button onClick={() => setShowLogin(true)}>sign in</button>
+        ) : (
+          <div className="navbar-profile">
+            <img
+              src={assets.profile_icon}
+              alt="profile"
+              onClick={() => setShowProfileMenu((prev) => !prev)}
+            />
 
-      </div>
+            {showProfileMenu && (
+              <ul className="nav-profile-dropdown active-dropdown">
+                <li
+                  onClick={() => {
+                    setShowProfileMenu(false);
+                    navigate("/myorders");
+                  }}
+                >
+                  <img src={assets.bag_icon} alt="orders" />
+                  <p>Orders</p>
+                </li>
 
-      {/* SEARCH SECTION */}
+                <hr />
 
-      {
-        showSearch && (
-
-          <div className="search-container">
-
-            {/* SEARCH BOX */}
-
-            <div className="search-box">
-
-              <input
-                type="text"
-                placeholder="Search food..."
-                value={search}
-                onChange={handleSearch}
-              />
-
-            </div>
-
-            {/* SEARCH RESULTS */}
-
-            {
-              search.length > 0 && (
-
-                <div className="search-results">
-
-                  {
-                    filteredFoods.length > 0 ? (
-
-                      filteredFoods.map((item) => (
-
-                        <div
-                          className="search-item"
-                          key={item._id}
-                          onClick={() =>
-                            handleFoodClick(item._id)
-                          }
-                        >
-
-                          <img
-                            src={item.image}
-                            alt={item.name}
-                          />
-
-                          <p>{item.name}</p>
-
-                        </div>
-
-                      ))
-
-                    ) : (
-
-                      <p className="no-results">
-                        No food found
-                      </p>
-
-                    )
-                  }
-
-                </div>
-
-              )
-            }
-
+                <li onClick={logout}>
+                  <img src={assets.logout_icon} alt="logout" />
+                  <p>Logout</p>
+                </li>
+              </ul>
+            )}
           </div>
-
-        )
-      }
-
+        )}
+      </div>
     </div>
+  );
+};
 
-  )
-}
-
-export default Navbar
+export default Navbar;

@@ -1,0 +1,30 @@
+.my-orders {
+  min-height: 45vh;
+  padding: 40px 0;
+}
+
+.my-orders h2 {
+  font-size: 32px;
+  color: #222;
+  margin-bottom: 30px;
+}
+
+.my-orders-empty {
+  background: white;
+  border: 1px solid #eee;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+}
+
+.my-orders-empty h3 {
+  color: tomato;
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.my-orders-empty p {
+  color: #666;
+  font-size: 16px;
+}
