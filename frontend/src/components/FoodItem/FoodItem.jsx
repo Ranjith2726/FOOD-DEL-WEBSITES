@@ -15,13 +15,13 @@ const FoodItem = ({
     cartItems,
     addToCart,
     removeFromCart
-  } = useContext(StoreContext);
+  } = useContext(StoreContext)
 
   return (
 
     <div
       className='food-item'
-      id={id}
+      id={`food-${id}`}
     >
 
       <div className="food-item-img-container">
@@ -29,7 +29,7 @@ const FoodItem = ({
         <img
           className='food-item-image'
           src={image}
-          alt=""
+          alt={name}
         />
 
         {
@@ -39,7 +39,7 @@ const FoodItem = ({
               className='add'
               onClick={() => addToCart(id)}
               src={assets.add_icon_white}
-              alt=""
+              alt="Add item"
             />
 
           ) : (
@@ -49,7 +49,7 @@ const FoodItem = ({
               <img
                 onClick={() => removeFromCart(id)}
                 src={assets.remove_icon_red}
-                alt=""
+                alt="Remove item"
               />
 
               <p>{cartItems[id]}</p>
@@ -57,7 +57,7 @@ const FoodItem = ({
               <img
                 onClick={() => addToCart(id)}
                 src={assets.add_icon_white}
-                alt=""
+                alt="Add item"
               />
 
             </div>
@@ -75,7 +75,7 @@ const FoodItem = ({
 
           <img
             src={assets.rating_starts}
-            alt=""
+            alt="rating"
           />
 
         </div>
@@ -96,4 +96,4 @@ const FoodItem = ({
 
 }
 
-export default FoodItem;
+export default FoodItem

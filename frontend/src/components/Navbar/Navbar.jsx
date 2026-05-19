@@ -7,8 +7,11 @@ import { StoreContext } from "../../context/StoreContext";
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
 
-  const { token, setToken } = useContext(StoreContext);
+  const { token, setToken, search, setSearch, food_list } =
+    useContext(StoreContext);
+
   const navigate = useNavigate();
 
   const logout = () => {
@@ -16,6 +19,30 @@ const Navbar = ({ setShowLogin }) => {
     setToken("");
     setShowProfileMenu(false);
     navigate("/");
+  };
+
+  const filteredItems = food_list.filter((item) =>
+    item.name.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSearchItemClick = (itemId) => {
+    setShowSearch(false);
+    setSearch("");
+
+    if (window.location.pathname !== "/") {
+      navigate("/");
+    }
+
+    setTimeout(() => {
+      const element = document.getElementById(`food-${itemId}`);
+
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 300);
   };
 
   return (
@@ -59,7 +86,11 @@ const Navbar = ({ setShowLogin }) => {
       </ul>
 
       <div className="navbar-right">
-        <img src={assets.search_icon} alt="search" />
+        <img
+          src={assets.search_icon}
+          alt="search"
+          onClick={() => setShowSearch((prev) => !prev)}
+        />
 
         <div className="navbar-search-icon">
           <Link to="/cart">
@@ -101,6 +132,40 @@ const Navbar = ({ setShowLogin }) => {
           </div>
         )}
       </div>
+
+      {showSearch && (
+        <div className="search-container">
+          <div className="search-box">
+            <input
+              type="text"
+              placeholder="Search food items..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              autoFocus
+            />
+          </div>
+
+          {search && (
+            <div className="search-results">
+              {filteredItems.length > 0 ? (
+                filteredItems.map((item) => (
+                  <div
+                    className="search-item"
+                    key={item._id}
+                    onClick={() => handleSearchItemClick(item._id)}
+                  >
+                    <img src={item.image} alt={item.name} />
+                    <p>{item.name}</p>
+                    <span>${item.price}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="no-results">Items are not there</div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
