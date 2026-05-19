@@ -15,14 +15,15 @@ const LoginPopup = ({ setShowLogin }) => {
     password: "",
   });
 
-  const url = "http://localhost:4000";
+  const url =
+    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 
   const onChangeHandler = (event) => {
     const name = event.target.name;
     const value = event.target.value;
 
-    setData((data) => ({
-      ...data,
+    setData((prevData) => ({
+      ...prevData,
       [name]: value,
     }));
 
@@ -51,7 +52,10 @@ const LoginPopup = ({ setShowLogin }) => {
         setError(response.data.message || "Something went wrong");
       }
     } catch (error) {
-      setError("Server error. Please try again.");
+      setError(
+        error.response?.data?.message ||
+          "Server error. Please try again."
+      );
     }
   };
 
@@ -60,6 +64,7 @@ const LoginPopup = ({ setShowLogin }) => {
       <form onSubmit={onLogin} className="login-popup-container">
         <div className="login-popup-title">
           <h2>{currState}</h2>
+
           <button
             type="button"
             onClick={() => setShowLogin(false)}
@@ -96,6 +101,7 @@ const LoginPopup = ({ setShowLogin }) => {
             value={data.password}
             type="password"
             placeholder="Password"
+            minLength="6"
             required
           />
         </div>
