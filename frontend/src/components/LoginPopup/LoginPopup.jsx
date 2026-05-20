@@ -16,11 +16,12 @@ const LoginPopup = ({ setShowLogin }) => {
   });
 
   const url =
-    import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
+    window.location.hostname === "localhost"
+      ? "http://localhost:4000"
+      : window.location.origin;
 
   const onChangeHandler = (event) => {
-    const name = event.target.name;
-    const value = event.target.value;
+    const { name, value } = event.target;
 
     setData((prevData) => ({
       ...prevData,
@@ -33,13 +34,10 @@ const LoginPopup = ({ setShowLogin }) => {
   const onLogin = async (event) => {
     event.preventDefault();
 
-    let newUrl = url;
-
-    if (currState === "Login") {
-      newUrl += "/api/user/login";
-    } else {
-      newUrl += "/api/user/register";
-    }
+    const newUrl =
+      currState === "Login"
+        ? `${url}/api/user/login`
+        : `${url}/api/user/register`;
 
     try {
       const response = await axios.post(newUrl, data);
@@ -52,6 +50,8 @@ const LoginPopup = ({ setShowLogin }) => {
         setError(response.data.message || "Something went wrong");
       }
     } catch (error) {
+      console.log(error);
+
       setError(
         error.response?.data?.message ||
           "Server error. Please try again."
